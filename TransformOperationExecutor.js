@@ -1,11 +1,13 @@
-import { defaultMetadataStorage } from "./storage";
-export var TransformationType;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var storage_1 = require("./storage");
+var TransformationType;
 (function (TransformationType) {
     TransformationType[TransformationType["PLAIN_TO_CLASS"] = 0] = "PLAIN_TO_CLASS";
     TransformationType[TransformationType["CLASS_TO_PLAIN"] = 1] = "CLASS_TO_PLAIN";
     TransformationType[TransformationType["CLASS_TO_CLASS"] = 2] = "CLASS_TO_CLASS";
-})(TransformationType || (TransformationType = {}));
-var TransformOperationExecutor = (function () {
+})(TransformationType = exports.TransformationType || (exports.TransformationType = {}));
+var TransformOperationExecutor = /** @class */ (function () {
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
@@ -91,14 +93,14 @@ var TransformOperationExecutor = (function () {
                 var valueKey = key, newValueKey = key, propertyName = key;
                 if (!this_1.options.ignoreDecorators && targetType) {
                     if (this_1.transformationType === TransformationType.PLAIN_TO_CLASS) {
-                        var exposeMetadata = defaultMetadataStorage.findExposeMetadataByCustomName(targetType, key);
+                        var exposeMetadata = storage_1.defaultMetadataStorage.findExposeMetadataByCustomName(targetType, key);
                         if (exposeMetadata) {
                             propertyName = exposeMetadata.propertyName;
                             newValueKey = exposeMetadata.propertyName;
                         }
                     }
                     else if (this_1.transformationType === TransformationType.CLASS_TO_PLAIN || this_1.transformationType === TransformationType.CLASS_TO_CLASS) {
-                        var exposeMetadata = defaultMetadataStorage.findExposeMetadata(targetType, key);
+                        var exposeMetadata = storage_1.defaultMetadataStorage.findExposeMetadata(targetType, key);
                         if (exposeMetadata && exposeMetadata.options && exposeMetadata.options.name)
                             newValueKey = exposeMetadata.options.name;
                     }
@@ -120,7 +122,7 @@ var TransformOperationExecutor = (function () {
                     type = targetType;
                 }
                 else if (targetType) {
-                    var metadata = defaultMetadataStorage.findTypeMetadata(targetType, propertyName);
+                    var metadata = storage_1.defaultMetadataStorage.findTypeMetadata(targetType, propertyName);
                     if (metadata) {
                         var options = { newObject: newValue, object: value, property: propertyName };
                         type = metadata.typeFunction(options);
@@ -183,7 +185,7 @@ var TransformOperationExecutor = (function () {
     };
     TransformOperationExecutor.prototype.applyCustomTransformations = function (value, target, key, obj, transformationType) {
         var _this = this;
-        var metadatas = defaultMetadataStorage.findTransformMetadatas(target, key, this.transformationType);
+        var metadatas = storage_1.defaultMetadataStorage.findTransformMetadatas(target, key, this.transformationType);
         // apply versioning options
         if (this.options.version !== undefined) {
             metadatas = metadatas.filter(function (metadata) {
@@ -218,13 +220,13 @@ var TransformOperationExecutor = (function () {
     TransformOperationExecutor.prototype.getReflectedType = function (target, propertyName) {
         if (!target)
             return undefined;
-        var meta = defaultMetadataStorage.findTypeMetadata(target, propertyName);
+        var meta = storage_1.defaultMetadataStorage.findTypeMetadata(target, propertyName);
         return meta ? meta.reflectedType : undefined;
     };
     TransformOperationExecutor.prototype.getKeys = function (target, object) {
         var _this = this;
         // determine exclusion strategy
-        var strategy = defaultMetadataStorage.getStrategy(target);
+        var strategy = storage_1.defaultMetadataStorage.getStrategy(target);
         if (strategy === "none")
             strategy = this.options.strategy || "exposeAll"; // exposeAll is default strategy
         // get all keys that need to expose
@@ -239,10 +241,10 @@ var TransformOperationExecutor = (function () {
         }
         if (!this.options.ignoreDecorators && target) {
             // add all exposed to list of keys
-            var exposedProperties = defaultMetadataStorage.getExposedProperties(target, this.transformationType);
+            var exposedProperties = storage_1.defaultMetadataStorage.getExposedProperties(target, this.transformationType);
             if (this.transformationType === TransformationType.PLAIN_TO_CLASS) {
                 exposedProperties = exposedProperties.map(function (key) {
-                    var exposeMetadata = defaultMetadataStorage.findExposeMetadata(target, key);
+                    var exposeMetadata = storage_1.defaultMetadataStorage.findExposeMetadata(target, key);
                     if (exposeMetadata && exposeMetadata.options && exposeMetadata.options.name) {
                         return exposeMetadata.options.name;
                     }
@@ -251,7 +253,7 @@ var TransformOperationExecutor = (function () {
             }
             keys = keys.concat(exposedProperties);
             // exclude excluded properties
-            var excludedProperties_1 = defaultMetadataStorage.getExcludedProperties(target, this.transformationType);
+            var excludedProperties_1 = storage_1.defaultMetadataStorage.getExcludedProperties(target, this.transformationType);
             if (excludedProperties_1.length > 0) {
                 keys = keys.filter(function (key) {
                     return excludedProperties_1.indexOf(key) === -1;
@@ -260,7 +262,7 @@ var TransformOperationExecutor = (function () {
             // apply versioning options
             if (this.options.version !== undefined) {
                 keys = keys.filter(function (key) {
-                    var exposeMetadata = defaultMetadataStorage.findExposeMetadata(target, key);
+                    var exposeMetadata = storage_1.defaultMetadataStorage.findExposeMetadata(target, key);
                     if (!exposeMetadata || !exposeMetadata.options)
                         return true;
                     return _this.checkVersion(exposeMetadata.options.since, exposeMetadata.options.until);
@@ -269,7 +271,7 @@ var TransformOperationExecutor = (function () {
             // apply grouping options
             if (this.options.groups && this.options.groups.length) {
                 keys = keys.filter(function (key) {
-                    var exposeMetadata = defaultMetadataStorage.findExposeMetadata(target, key);
+                    var exposeMetadata = storage_1.defaultMetadataStorage.findExposeMetadata(target, key);
                     if (!exposeMetadata || !exposeMetadata.options)
                         return true;
                     return _this.checkGroups(exposeMetadata.options.groups);
@@ -277,7 +279,7 @@ var TransformOperationExecutor = (function () {
             }
             else {
                 keys = keys.filter(function (key) {
-                    var exposeMetadata = defaultMetadataStorage.findExposeMetadata(target, key);
+                    var exposeMetadata = storage_1.defaultMetadataStorage.findExposeMetadata(target, key);
                     return !exposeMetadata || !exposeMetadata.options || !exposeMetadata.options.groups || !exposeMetadata.options.groups.length;
                 });
             }
@@ -309,5 +311,6 @@ var TransformOperationExecutor = (function () {
     };
     return TransformOperationExecutor;
 }());
-export { TransformOperationExecutor };
+exports.TransformOperationExecutor = TransformOperationExecutor;
+
 //# sourceMappingURL=TransformOperationExecutor.js.map

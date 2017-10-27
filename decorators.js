@@ -1,56 +1,62 @@
-import { ClassTransformer } from "./ClassTransformer";
-import { defaultMetadataStorage } from "./storage";
-import { TypeMetadata } from "./metadata/TypeMetadata";
-import { ExposeMetadata } from "./metadata/ExposeMetadata";
-import { ExcludeMetadata } from "./metadata/ExcludeMetadata";
-import { TransformMetadata } from "./metadata/TransformMetadata";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var ClassTransformer_1 = require("./ClassTransformer");
+var storage_1 = require("./storage");
+var TypeMetadata_1 = require("./metadata/TypeMetadata");
+var ExposeMetadata_1 = require("./metadata/ExposeMetadata");
+var ExcludeMetadata_1 = require("./metadata/ExcludeMetadata");
+var TransformMetadata_1 = require("./metadata/TransformMetadata");
 /**
  * Defines a custom logic for value transformation.
  */
-export function Transform(transformFn, options) {
+function Transform(transformFn, options) {
     return function (target, key) {
-        var metadata = new TransformMetadata(target.constructor, key, transformFn, options);
-        defaultMetadataStorage.addTransformMetadata(metadata);
+        var metadata = new TransformMetadata_1.TransformMetadata(target.constructor, key, transformFn, options);
+        storage_1.defaultMetadataStorage.addTransformMetadata(metadata);
     };
 }
+exports.Transform = Transform;
 /**
  * Specifies a type of the property.
  */
-export function Type(typeFunction) {
+function Type(typeFunction) {
     return function (target, key) {
         var type = Reflect.getMetadata("design:type", target, key);
-        var metadata = new TypeMetadata(target.constructor, key, type, typeFunction);
-        defaultMetadataStorage.addTypeMetadata(metadata);
+        var metadata = new TypeMetadata_1.TypeMetadata(target.constructor, key, type, typeFunction);
+        storage_1.defaultMetadataStorage.addTypeMetadata(metadata);
     };
 }
+exports.Type = Type;
 /**
  * Marks property as included in the process of transformation. By default it includes the property for both
  * constructorToPlain and plainToConstructor transformations, however you can specify on which of transformation types
  * you want to skip this property.
  */
-export function Expose(options) {
+function Expose(options) {
     return function (object, propertyName) {
-        var metadata = new ExposeMetadata(object instanceof Function ? object : object.constructor, propertyName, options || {});
-        defaultMetadataStorage.addExposeMetadata(metadata);
+        var metadata = new ExposeMetadata_1.ExposeMetadata(object instanceof Function ? object : object.constructor, propertyName, options || {});
+        storage_1.defaultMetadataStorage.addExposeMetadata(metadata);
     };
 }
+exports.Expose = Expose;
 /**
  * Marks property as excluded from the process of transformation. By default it excludes the property for both
  * constructorToPlain and plainToConstructor transformations, however you can specify on which of transformation types
  * you want to skip this property.
  */
-export function Exclude(options) {
+function Exclude(options) {
     return function (object, propertyName) {
-        var metadata = new ExcludeMetadata(object instanceof Function ? object : object.constructor, propertyName, options || {});
-        defaultMetadataStorage.addExcludeMetadata(metadata);
+        var metadata = new ExcludeMetadata_1.ExcludeMetadata(object instanceof Function ? object : object.constructor, propertyName, options || {});
+        storage_1.defaultMetadataStorage.addExcludeMetadata(metadata);
     };
 }
+exports.Exclude = Exclude;
 /**
  * Transform the object from class to plain object and return only with the exposed properties.
  */
-export function TransformClassToPlain(params) {
+function TransformClassToPlain(params) {
     return function (target, propertyKey, descriptor) {
-        var classTransformer = new ClassTransformer();
+        var classTransformer = new ClassTransformer_1.ClassTransformer();
         var originalMethod = descriptor.value;
         descriptor.value = function () {
             var args = [];
@@ -63,12 +69,13 @@ export function TransformClassToPlain(params) {
         };
     };
 }
+exports.TransformClassToPlain = TransformClassToPlain;
 /**
  * Return the class instance only with the exposed properties.
  */
-export function TransformClassToClass(params) {
+function TransformClassToClass(params) {
     return function (target, propertyKey, descriptor) {
-        var classTransformer = new ClassTransformer();
+        var classTransformer = new ClassTransformer_1.ClassTransformer();
         var originalMethod = descriptor.value;
         descriptor.value = function () {
             var args = [];
@@ -81,4 +88,6 @@ export function TransformClassToClass(params) {
         };
     };
 }
+exports.TransformClassToClass = TransformClassToClass;
+
 //# sourceMappingURL=decorators.js.map
